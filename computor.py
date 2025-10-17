@@ -38,8 +38,8 @@ class Polynom:
     def parse_input(self, to_parse):
         """parse input"""
 
-        print("Received expression:")
-        print(to_parse)
+        # print("Received expression:")
+        # print(to_parse)
 
         to_parse = to_parse.lower()
         to_parse = re.sub(r"\s", "", to_parse)
@@ -117,9 +117,8 @@ class Polynom:
                     reduced_degrees[degree] = tmp
 
         if len(problematic_terms) > 0:
-            message = "it seems that following term(s) could not be parsed:\n"
+            message = "it seems that following terms could not be parsed:\n"
             message += '\n'.join(problematic_terms)
-            message += "\nPlease check them before retrying"
             display_error(message)
             # display_usage()
             exit(0)
@@ -154,9 +153,10 @@ class Polynom:
         reduced = "0" if reduced == "" else reduced
         reduced = reduced.strip() + " = 0"
         print("\nReduced form: " + reduced)
-        print("Polynomial degree: " + str(degree))
+        if degree > 0:
+            print("Polynomial degree: " + str(degree))
         if degree > 2:
-            display_error("polynomial degree is greater than 2, this script will not attempt to solve this equation.")
+            display_error("The polynomial degree is strictly greater than 2, I can't solve.")
             exit(0)
         return reduced
 
@@ -184,7 +184,7 @@ class Polynom:
         return True
     
     def solve(self):
-        """Displays the solution(s) of the equation.
+        """Displays the solutions of the equation.
         """
 
         degree = self.degree
@@ -202,21 +202,21 @@ class Polynom:
 
         if degree == 0:
             if values[0] == 0:
-                answer += "\nSolution:\nx = any reel\n"
+                answer += "Any real number is a solution.\n"
             else:
-                answer += "\nSolution:\nThis is impossible to solve.\n"
+                answer += "No solution.\n"
 
         elif degree == 1:
 
             if zero_term == 0:
-                answer += "\nSolution:\nx = 0\n"
+                answer += "Solution:\nx = 0\n"
 
             else:
                 zero_term = -values[0]
                 one_term = values[1]
                 result = zero_term / one_term
 
-                answer += "\nSolution:\nx = " + self.get_str_term(result) + "\n"
+                answer += "Solution:\nx = " + self.get_str_term(result) + "\n"
                 
         elif degree == 2:
             if zero_term == 0 and one_term == 0:
@@ -236,12 +236,14 @@ class Polynom:
                 if discriminant > 0:
                     x1 = (minus_one_term + self.ft_sqrt(discriminant)) / (2 * two_term)
                     x2 = (minus_one_term - self.ft_sqrt(discriminant)) / (2 * two_term)
+                    answer += "Discriminant is strictly positive."
                     answer += "\nSolutions:\nx1 = " + self.get_str_term(x1) + " and x2 = " + self.get_str_term(x2) + "\n"
 
                 elif discriminant < 0:
                     discriminant = -discriminant
                     real_x = minus_one_term / (2 * two_term)
                     complex_x = self.ft_sqrt(discriminant) / (2 * two_term)
+                    answer += "Discriminant is strictly negative."
                     
                     answer += "\nSolutions:"
                     str_complex_x = " * " + self.get_str_term(complex_x) if complex_x != 1 else ""
@@ -249,6 +251,7 @@ class Polynom:
 
                 else:
                     x = minus_one_term / (2 * two_term)
+                    answer += "Discriminant is Zero."
                     answer += "\nSolution:"
                     answer += "\nx = " + self.get_str_term(x) + "\n"
         
@@ -288,7 +291,14 @@ def display_usage():
 
 
 def main():
-    equation = Polynom(sys.argv[1:])
+    # equation = Polynom(sys.argv[1:])
+    args = sys.argv[1:]
+
+    if not args:
+        user_input = input("Enter an equation: ").strip()
+        args = [user_input]
+
+    equation = Polynom(args)
     answer = equation.solve()
 
 if __name__ == "__main__":
